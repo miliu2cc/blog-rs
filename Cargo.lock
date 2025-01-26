@@ -3545,6 +3545,7 @@ dependencies = [
 name = "web_app"
 version = "0.1.0"
 dependencies = [
+ "jsonwebtoken",
  "salvo",
  "sea-orm",
  "serde",

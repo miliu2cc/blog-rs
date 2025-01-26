@@ -5,6 +5,7 @@ use sea_orm::{Database, DatabaseConnection};
 mod router;
 mod entity;
 mod handler;
+mod auth;
 
 
 

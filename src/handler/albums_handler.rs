@@ -1,0 +1,46 @@
+use salvo::{handler, http::StatusCode, oapi::extract::JsonBody, writing::Json, Request, Response};
+use sea_orm::{DeleteResult, EntityTrait, Set};
+use serde::Deserialize;
+use web_app::connect_db;
+
+use crate::entity::albums;
+
+
+#[derive(Debug, Deserialize)]
+pub struct CreatealbumDto {
+    pub coverurl: Option<String>,
+    pub description: Option<String>,
+}
+
+#[handler]
+pub async fn album_list(res : &mut Response) {
+    let db  = connect_db().await;
+
+    let list : Vec<albums::Model> = albums::Entity::find().all(&db).await.unwrap_or_default();
+
+    res.render(Json(list));
+}
+
+#[handler]
+pub async fn create_album(json : JsonBody<CreatealbumDto>, res : &mut Response) {
+    let db = connect_db().await;
+
+    let album_dto = json.into_inner();
+    let album = albums::ActiveModel {
+        cover_url: Set(album_dto.coverurl),
+        description: Set(album_dto.description),
+        ..Default::default()
+    };
+
+    let _ = albums::Entity::insert(album).exec(&db).await.unwrap();
+    res.status_code(StatusCode::OK);
+}
+
+#[handler]
+pub async fn del_album(req : &mut Request,res : &mut Response) {
+    let db = connect_db().await;
+    let id = req.param::<i64>("id").unwrap();
+
+    let re : DeleteResult = albums::Entity::delete_by_id(id).exec(&db).await;
+    res.render(re.rows_affected);
+}
