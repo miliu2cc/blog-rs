@@ -87,3 +87,79 @@ pub async fn del_article(req : &mut Request, res : &mut Response) {
     let _ = articles::Entity::delete_by_id(id).exec(&db).await;
     res.status_code(StatusCode::OK);
 }
+
+#[handler]
+pub async fn update_top_status(req: &mut Request, res: &mut Response) {
+    let db = connect_db().await;
+    let id = req.param::<i32>("id").unwrap();
+    let is_top = req.param::<i8>("status").unwrap();
+
+    let article = articles::ActiveModel {
+        id: Set(id),
+        is_top: Set(Some(is_top)),
+        ..Default::default()
+    };
+
+    let _ = articles::Entity::update(article).exec(&db).await;
+    res.status_code(StatusCode::OK);
+}
+
+#[handler]
+pub async fn update_publish_status(req: &mut Request, res: &mut Response) {
+    let db = connect_db().await;
+    let id = req.param::<i32>("id").unwrap();
+    let status = req.param::<i8>("status").unwrap();
+
+    let article = articles::ActiveModel {
+        id: Set(id),
+        is_published: Set(Some(status)),
+        ..Default::default()
+    };
+
+    let _ = articles::Entity::update(article).exec(&db).await;
+    res.status_code(StatusCode::OK);
+}
+
+#[handler]
+pub async fn update_delete_status(req: &mut Request, res: &mut Response) {
+    let db = connect_db().await;
+    let id = req.param::<i32>("id").unwrap();
+    let status = req.param::<i8>("status").unwrap();
+
+    let article = articles::ActiveModel {
+        id: Set(id),
+        is_deleted: Set(Some(status)),
+        ..Default::default()
+    };
+
+    let _ = articles::Entity::update(article).exec(&db).await;
+    res.status_code(StatusCode::OK);
+}
+
+#[derive(Debug, Deserialize)]
+pub struct UpdateArticleDto {
+    pub title: String,
+    pub content: String,
+    pub cover_url: Option<String>,
+    pub category_id: Option<i32>,
+}
+
+#[handler]
+pub async fn update_article(req: &mut Request, json: JsonBody<UpdateArticleDto>, res: &mut Response) {
+    let db = connect_db().await;
+    let id = req.param::<i32>("id").unwrap();
+    let article_dto = json.into_inner();
+
+    let article = articles::ActiveModel {
+        id: Set(id),
+        title: Set(article_dto.title),
+        content: Set(article_dto.content),
+        cover_url: Set(article_dto.cover_url),
+        category_id: Set(article_dto.category_id),
+        updated_at: Set(Some(chrono::Utc::now())),
+        ..Default::default()
+    };
+
+    let _ = articles::Entity::update(article).exec(&db).await;
+    res.status_code(StatusCode::OK);
+}

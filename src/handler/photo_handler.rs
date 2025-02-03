@@ -2,6 +2,7 @@ use salvo::{handler, http::headers::SetCookie, oapi::extract::JsonBody, writing:
 use sea_orm::{ColumnTrait, EntityTrait, QueryFilter, Set};
 use serde::Deserialize;
 use web_app::connect_db;
+use salvo::StatusCode;
 
 use crate::entity::photos;
 
@@ -36,4 +37,13 @@ pub async fn create_photo(json: JsonBody<CreatephotoDto>) {
 
     let _ = photos::Entity::insert(photo).exec(&db).await.unwrap();
     
+}
+
+#[handler]
+pub async fn del_photo(req: &mut Request, res: &mut Response) {
+    let db = connect_db().await;
+    let id = req.param::<i32>("id").unwrap();
+
+    let _ = photos::Entity::delete_by_id(id).exec(&db).await;
+    res.status_code(StatusCode::OK);
 }

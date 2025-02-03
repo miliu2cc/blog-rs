@@ -3,6 +3,7 @@ use sea_orm::{sqlx::types::uuid::timestamp::context, EntityTrait, Set};
 use web_app::connect_db;
 use serde::Deserialize;
 use crate::entity::posts;
+use salvo::http::StatusCode;
 
 #[derive(Deserialize,Debug)]
 pub struct CrateeatepostDto{
@@ -28,4 +29,13 @@ pub async fn create_post(json : JsonBody<CrateeatepostDto>) {
     };
 
     let _ = posts::Entity::insert(post).exec(&db).await.unwrap();
+}
+
+#[handler]
+pub async fn del_post(req: &mut Request, res: &mut Response) {
+    let db = connect_db().await;
+    let id = req.param::<i32>("id").unwrap();
+
+    let _ = posts::Entity::delete_by_id(id).exec(&db).await;
+    res.status_code(StatusCode::OK);
 }
