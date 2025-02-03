@@ -1,9 +1,11 @@
 use salvo::{handler, http::headers::SetCookie, oapi::extract::JsonBody, writing::Json, Request, Response, Writer};
 use sea_orm::{ColumnTrait, EntityTrait, QueryFilter, Set};
+use serde::Deserialize;
 use web_app::connect_db;
 
 use crate::entity::photos;
 
+#[derive(Debug, Deserialize)]
 pub struct CreatephotoDto {
     album_id : i32,
     image_url : String,

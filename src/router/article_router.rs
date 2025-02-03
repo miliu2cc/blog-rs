@@ -9,7 +9,6 @@ pub fn init_router() -> Router {
         .push(
             Router::with_path("articles")
             .get(article_list)
-            .post(create_artilce)
             .push(
                     Router::with_path("top")
                     .get(top_list)

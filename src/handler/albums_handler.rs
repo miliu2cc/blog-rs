@@ -1,4 +1,4 @@
-use salvo::{handler, http::StatusCode, oapi::extract::JsonBody, writing::Json, Request, Response};
+use salvo::{handler, http::StatusCode, oapi::extract::JsonBody, writing::Json, Request, Response, Writer};
 use sea_orm::{DeleteResult, EntityTrait, Set};
 use serde::Deserialize;
 use web_app::connect_db;
@@ -39,8 +39,8 @@ pub async fn create_album(json : JsonBody<CreatealbumDto>, res : &mut Response) 
 #[handler]
 pub async fn del_album(req : &mut Request,res : &mut Response) {
     let db = connect_db().await;
-    let id = req.param::<i64>("id").unwrap();
+    let id = req.param::<i32>("id").unwrap();
 
-    let re : DeleteResult = albums::Entity::delete_by_id(id).exec(&db).await;
-    res.render(re.rows_affected);
+    let _ = albums::Entity::delete_by_id(id).exec(&db).await;
+    res.status_code(StatusCode::OK);
 }

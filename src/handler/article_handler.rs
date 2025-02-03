@@ -1,5 +1,5 @@
-use salvo::{handler, oapi::extract::JsonBody, writing::Json, Request, Response, Writer};
-use sea_orm::{sea_query::table, sqlx:: Database, ActiveModelTrait, ActiveValue::NotSet, ColumnTrait, DatabaseConnection, DbErr, EntityTrait, InsertResult, QueryFilter, Select, Set, TryIntoModel};
+use salvo::{handler, http::StatusCode, oapi::extract::JsonBody, writing::Json, Request, Response, Writer};
+use sea_orm::{sea_query::table, sqlx:: Database, ActiveModelTrait, ActiveValue::NotSet, ColumnTrait, DatabaseConnection, DbErr, DeleteResult, EntityTrait, InsertResult, QueryFilter, Select, Set, TryIntoModel};
 use web_app::connect_db;
 use serde::Deserialize;
 
@@ -55,7 +55,7 @@ pub async fn article_info(req : &mut Request ,res : &mut Response) {
 }
 
 #[handler]
-pub async fn create_artilce(json : JsonBody<CreateArticleDto>) {
+pub async fn create_artilce(json : JsonBody<CreateArticleDto>, res : &mut Response) {
     let db = connect_db().await;
 
     let article_dto  = json.into_inner();
@@ -75,5 +75,15 @@ pub async fn create_artilce(json : JsonBody<CreateArticleDto>) {
 
     //article.insert(&db).await;
     let _ = articles::Entity::insert(article).exec(&db).await.unwrap();
+    res.status_code(StatusCode::OK);
 
+}
+
+#[handler]
+pub async fn del_article(req : &mut Request, res : &mut Response) {
+    let db = connect_db().await;
+    let id = req.param::<i32>("id").unwrap();
+
+    let _ = articles::Entity::delete_by_id(id).exec(&db).await;
+    res.status_code(StatusCode::OK);
 }

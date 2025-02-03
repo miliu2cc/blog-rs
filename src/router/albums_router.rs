@@ -20,6 +20,6 @@ pub fn init_router() -> Router {
                             .delete(del_album)
                     )
             )
-
         );
+    router
 }
