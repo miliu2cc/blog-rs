@@ -1,0 +1,18 @@
+[package]
+name = "web_app"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tokio = { version = "1", features = ["macros"] }
+salvo = { version = "*", features = ["oapi", "jwt-auth", "cors"] }
+tracing = "0.1"
+tracing-subscriber = "0.3"
+sea-orm = { version = "1.1.0", features = [
+  "sqlx-mysql",
+  "runtime-tokio-native-tls",
+  "macros",
+] }
+serde = { version = "1.0", features = ["derive"] }
+jsonwebtoken = "9.3"
+time = "0.3.37"
